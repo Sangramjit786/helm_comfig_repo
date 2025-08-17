@@ -125,6 +125,17 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
   --create-namespace
 ```
 
+### 4. Install Grafana Loki & Tempo
+
+Loki: Centralized logging.
+Tempo: Distributed tracing.
+Deployment:
+```
+helm repo add grafana https://grafana.github.io/helm-charts
+helm install loki grafana/loki-stack -n monitoring
+helm install tempo grafana/tempo -n monitoring
+```
+
 ## 🚀 Deployment Steps
 
 ### 1) Creating Our Own Helm Chart & Template Files
@@ -133,5 +144,85 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
   helm create accounts
   ``` 
 Customize the generated templates/ to include Deployment, Service, Ingress, and ConfigMap.
-
 Store parameterized values in values.yaml for flexible deployments.
+
+### 2) Helm Chart for Accounts Microservice
+
+Located inside /accounts directory.
+Deploy using:
+```
+helm install accounts ./accounts -n banking-dev
+```
+
+### 3) Helm Charts for All Microservices
+
+We have created Helm charts for the following microservices:
+cards
+configserver
+eurekaserver
+gatewayserver
+loans
+message
+
+Each chart follows the same template structure (Deployment, Service, ConfigMap).
+Example deployment:
+```
+helm install cards ./cards -n banking-dev
+```
+
+### 4) Environment-based Helm Charts (Dev, QA, Prod)
+
+Separate values-dev.yaml, values-qa.yaml, and values-prod.yaml are maintained.
+Example:
+```
+helm install accounts ./accounts -f values-qa.yaml -n banking-qa
+```
+This ensures different replicas, resource limits, and external URLs for each environment.
+
+### 5) Deploy Microservices
+
+```
+# Add the chart repository
+helm repo add mycharts https://sangramjit786.github.io/helm_comfig_repo/
+
+# Install the charts
+helm install accounts mycharts/accounts -f values-dev.yaml
+helm install cards mycharts/cards -f values-dev.yaml
+helm install loans mycharts/loans -f values-dev.yaml
+# ... other services
+```
+
+### 6) Environment Setup
+
+## dev
+```
+kubectl create namespace dev
+helm install myapp ./helm_charts -f helm_charts/values-dev.yaml -n dev
+```
+## qa
+```
+kubectl create namespace qa
+helm install myapp ./helm_charts -f helm_charts/values-qa.yaml -n qa
+```
+## prod
+```
+kubectl create namespace prod
+helm install myapp ./helm_charts -f helm_charts/values-prod.yaml -n prod
+```
+
+### Troubleshooting
+## Common Issues
+  ## 1. Pods in CrashLoopBackOff:
+    ```
+    kubectl logs <pod-name> -n <namespace>
+    kubectl describe pod <pod-name> -n <namespace>
+    ```
+  ## 2. Service Discovery Issues:
+  
+    - Verify Eureka server is running
+    - Check service registration in Eureka dashboard
+    
+  ## 3. Configuration Issues:
+   
+    - Verify Config Server is running
+    - Check application logs for configuration loading errors
