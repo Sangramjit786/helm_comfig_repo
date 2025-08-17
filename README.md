@@ -210,19 +210,19 @@ kubectl create namespace prod
 helm install myapp ./helm_charts -f helm_charts/values-prod.yaml -n prod
 ```
 
-### Troubleshooting
-## Common Issues
-  ## 1. Pods in CrashLoopBackOff:
+## Troubleshooting
+### Common Issues
+  ### 1. Pods in CrashLoopBackOff:
     ```
     kubectl logs <pod-name> -n <namespace>
     kubectl describe pod <pod-name> -n <namespace>
     ```
-  ## 2. Service Discovery Issues:
+  ### 2. Service Discovery Issues:
   
     - Verify Eureka server is running
     - Check service registration in Eureka dashboard
     
-  ## 3. Configuration Issues:
+  ### 3. Configuration Issues:
    
     - Verify Config Server is running
     - Check application logs for configuration loading errors
